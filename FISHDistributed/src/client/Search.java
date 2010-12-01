@@ -43,9 +43,8 @@ public class Search implements Runnable {
             byte[] buf = (Helper.SEARCH + ","
                     + fileName + ","
                     + String.valueOf(responsePort)).getBytes();
-            DatagramPacket dp = new DatagramPacket(buf, buf.length);
-            dp.setAddress(InetAddress.getByName(mcastAddress));
-            dp.setPort(mcastPort);
+            DatagramPacket dp = new DatagramPacket(buf, buf.length,
+                    InetAddress.getByName(mcastAddress), mcastPort);
             ms.send(dp);
             ds = new DatagramSocket(responsePort);
             buf = new byte[1024];

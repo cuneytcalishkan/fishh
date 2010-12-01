@@ -48,10 +48,8 @@ public class Responder extends Thread {
                 dp = new DatagramPacket(buf, buf.length);
                 ms.receive(dp);
                 String[] message = (new String(buf, 0, dp.getLength()).trim()).split(",");
-                if (message[0].equals(Helper.SEARCH)
-                        && !dp.getAddress().equals(InetAddress.getLocalHost())) {
-                    System.out.println("Message received: " + new String(dp.getData()).trim());
-                    System.out.println("from " + dp.getAddress().getHostAddress());
+                //&& !dp.getAddress().equals(InetAddress.getLocalHost())
+                if (message[0].equals(Helper.SEARCH)) {
                     executor.execute(new Inform(dp, uploadPort, sharedFiles));
                 }
             }
