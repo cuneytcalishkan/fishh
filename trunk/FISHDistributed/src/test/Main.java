@@ -26,7 +26,7 @@ public class Main {
     public static void main(String[] args) {
 
         String commands = Helper.SEARCH + "\n" + Helper.DOWNLOAD + "\nquit";
-        String USAGE = "USAGE: java test.Main [shared path] [save path] [multicast address] [multicast port(1-65535)]";
+        String USAGE = "USAGE: java test.Main [shared path] [save path] [multicast address] [upload port(1-65535)]";
         String sharePath = System.getProperty("USER.DIR");
         String savePath = System.getProperty("USER.DIR");
         boolean done = false;
@@ -44,7 +44,7 @@ public class Main {
             responsePort = Integer.parseInt(conf.getProperty("responsePort"));
             responseTimeout = Integer.parseInt(conf.getProperty("responseTimeout"));
         } catch (IOException ioe) {
-            mcastAddress = "224.17.17.17";
+            mcastAddress = "224.100.100.100";
             mcastPort = 8088;
             uploadPort = 8087;
             responsePort = 8089;
@@ -64,7 +64,7 @@ public class Main {
         }
         if (args.length > 3) {
             try {
-                mcastPort = Integer.parseInt(args[3]);
+                uploadPort = Integer.parseInt(args[3]);
                 if (mcastPort < 1 || mcastPort > 65535) {
                     throw new NumberFormatException("Port number must be between 1-65535");
                 }
@@ -81,11 +81,12 @@ public class Main {
             System.out.println(commands);
             MulticastSocket ms = new MulticastSocket(mcastPort);
             ms.joinGroup(InetAddress.getByName(mcastAddress));
-
+            System.out.println("Joined the multicast group " + mcastAddress + " on " + mcastPort);
             Responder responder = new Responder(ms, uploadPort, sharePath);
             responder.start();
+            System.out.println("Sharing files in " + sharePath + " on port " + uploadPort);
             Client client = new Client(ms, savePath, responsePort, responseTimeout, mcastPort, mcastAddress);
-
+            
             BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
             String line;
             while (!done) {
