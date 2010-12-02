@@ -6,7 +6,6 @@ package server;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
@@ -16,7 +15,8 @@ import java.util.logging.Logger;
 import util.Helper;
 
 /**
- *
+ * This class receives the messages sent to the multicast group and assigns
+ * a new <code>Inform</code> thread for each search request.
  * @author CUNEYT
  */
 public class Responder extends Thread {
@@ -27,6 +27,13 @@ public class Responder extends Thread {
     private String sharePath;
     private Executor executor;
 
+    /**
+     * This class receives the messages sent to the multicast group and assigns
+     * a new <code>Inform</code> thread for each search request.
+     * @param ms the <code>MulticastSocket</code> to listen
+     * @param uploadPort the port number on which to upload files
+     * @param sharePath the path of the shared files
+     */
     public Responder(MulticastSocket ms, int uploadPort, String sharePath) {
         this.ms = ms;
         this.uploadPort = uploadPort;
@@ -38,8 +45,6 @@ public class Responder extends Thread {
     @Override
     public void run() {
         try {
-            FileServer fileServer = new FileServer(sharePath, uploadPort);
-            fileServer.start();
             Helper.discoverFiles(sharePath, sharedFiles);
             byte[] buf;
             DatagramPacket dp = null;

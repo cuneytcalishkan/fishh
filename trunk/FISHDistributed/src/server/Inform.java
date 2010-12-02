@@ -11,7 +11,10 @@ import java.util.ArrayList;
 import util.Helper;
 
 /**
- *
+ * This <code>Runnable</code> class is responsible for searching the requested
+ * file among the shared files and sending an <code>INFORM</code> message back to
+ * the client who sent the search message including the port number this peer
+ * uses for uploading files.
  * @author CUNEYT
  */
 public class Inform implements Runnable {
@@ -20,6 +23,15 @@ public class Inform implements Runnable {
     private int uploadPort;
     private ArrayList<Object> sharedFiles;
 
+    /**
+     * This <code>Runnable</code> class is responsible for searching the requested
+     * file among the shared files and sending an <code>INFORM</code> message back to
+     * the client who sent the search message including the port number this peer
+     * uses for uploading files.
+     * @param dp the <code>DatagramPacket</code> that has been received as a search request
+     * @param uploadPort the number of the port that this peer uses for uploading files
+     * @param sharedFiles the list of shared files
+     */
     public Inform(DatagramPacket dp, int uploadPort, ArrayList<Object> sharedFiles) {
         this.dp = dp;
         this.uploadPort = uploadPort;
@@ -29,6 +41,7 @@ public class Inform implements Runnable {
     public void run() {
 
         String[] message = (new String(dp.getData()).trim()).split(",");
+
         String response = "";
         for (Object file : sharedFiles) {
             if (String.valueOf(file).toLowerCase().contains(message[1].toLowerCase())) {
