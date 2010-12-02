@@ -70,11 +70,11 @@ public class FileDownloader implements Runnable {
             isr = socket.getInputStream();
             fos = new FileOutputStream(fileName);
             System.out.println("\nSaving file to " + fileName);
-            System.out.println("\nStarted downloading " + fileName + " from " + server + " on port " + port);
-            byte[] buf = new byte[1024];
-            while (isr.read(buf) != -1) {
-                fos.write(buf);
+            int ch;
+            while ((ch = isr.read()) != -1) {
+                fos.write(ch);
             }
+            fos.flush();
             System.out.println("\nFinished downloading " + fileName);
         } catch (Exception ex) {
             System.out.println(ex);

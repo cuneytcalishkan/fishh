@@ -24,8 +24,8 @@ public class FileUploader implements Runnable {
     private String path;
     private BufferedReader reader;
     private PrintWriter writer;
-    private FileInputStream fis;
-    private OutputStream os;
+    private FileInputStream isr;
+    private OutputStream osw;
 
     /**
      * Uploads a requested file to the client over the socket if the requested file
@@ -52,17 +52,15 @@ public class FileUploader implements Runnable {
                 writer.println(Helper.OK);
                 writer.println(file.length());
             }
-            fis = new FileInputStream(file);
-            os = socket.getOutputStream();
+            isr = new FileInputStream(file);
+            osw = socket.getOutputStream();
 
             System.out.println("\nStarted uploading file " + fileName + " to " + socket.getInetAddress().getHostAddress());
-            byte[] buf = new byte[1024];
-            while (fis.read(buf) != -1) {
-                os.write(buf);
+            int ch;
+            while ((ch = isr.read()) != -1) {
+                osw.write(ch);
             }
-            fis.close();
-            os.flush();
-            os.close();
+            osw.flush();
             System.out.println("\nFinished uploading file " + fileName);
         } catch (Exception ex) {
             System.out.println(ex);
@@ -85,11 +83,11 @@ public class FileUploader implements Runnable {
             if (socket != null) {
                 socket.close();
             }
-            if (os != null) {
-                os.close();
+            if (osw != null) {
+                osw.close();
             }
-            if (fis != null) {
-                fis.close();
+            if (isr != null) {
+                isr.close();
             }
         } catch (IOException ex) {
             System.out.println(ex);
