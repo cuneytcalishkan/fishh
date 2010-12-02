@@ -14,7 +14,8 @@ import java.net.Socket;
 import util.Helper;
 
 /**
- *
+ * Uploads a requested file to the client over the socket if the requested file
+ * exists or quits when the file is not found.
  * @author CUNEYT
  */
 public class FileUploader implements Runnable {
@@ -23,6 +24,8 @@ public class FileUploader implements Runnable {
     private String path;
     private BufferedReader reader;
     private PrintWriter writer;
+    private FileInputStream fis;
+    private OutputStream os;
 
     /**
      * Uploads a requested file to the client over the socket if the requested file
@@ -49,10 +52,10 @@ public class FileUploader implements Runnable {
                 writer.println(Helper.OK);
                 writer.println(file.length());
             }
-            FileInputStream fis = new FileInputStream(file);
-            OutputStream os = socket.getOutputStream();
+            fis = new FileInputStream(file);
+            os = socket.getOutputStream();
 
-            System.out.println("Started uploading file " + fileName + " to " + socket.getInetAddress().getHostAddress());
+            System.out.println("\nStarted uploading file " + fileName + " to " + socket.getInetAddress().getHostAddress());
             byte[] buf = new byte[1024];
             while (fis.read(buf) != -1) {
                 os.write(buf);
@@ -60,16 +63,36 @@ public class FileUploader implements Runnable {
             fis.close();
             os.flush();
             os.close();
-            closeConnection();
-            System.out.println("Finished uploading file " + fileName);
+            System.out.println("\nFinished uploading file " + fileName);
         } catch (Exception ex) {
             System.out.println(ex);
+        } finally {
+            closeConnection();
         }
     }
 
-    private void closeConnection() throws IOException {
-        reader.close();
-        writer.close();
-        socket.close();
+    /**
+     * Closes the necessary input and output stream readers and writers related to the connection or file.
+     */
+    private void closeConnection() {
+        try {
+            if (reader != null) {
+                reader.close();
+            }
+            if (writer != null) {
+                writer.close();
+            }
+            if (socket != null) {
+                socket.close();
+            }
+            if (os != null) {
+                os.close();
+            }
+            if (fis != null) {
+                fis.close();
+            }
+        } catch (IOException ex) {
+            System.out.println(ex);
+        }
     }
 }

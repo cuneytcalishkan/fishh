@@ -4,16 +4,13 @@
  */
 package test;
 
-import client.Client;
+import client.Peer;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import server.Responder;
 import util.Configure;
 import util.Helper;
 
@@ -23,10 +20,19 @@ import util.Helper;
  */
 public class Main {
 
+    /**
+     * 
+     * @param args
+     */
     public static void main(String[] args) {
 
         String commands = Helper.SEARCH + "\n" + Helper.DOWNLOAD + "\nquit";
-        String USAGE = "USAGE: java test.Main [shared path] [save path] [multicast address] [upload port(1-65535)]";
+        String USAGE = "USAGE: java test.Main "
+                + "[shared path] "
+                + "[save path] "
+                + "[multicast address] "
+                + "[multicast port(1-65535)] "
+                + "[upload port(1-65535)]";
         String sharePath = System.getProperty("USER.DIR");
         String savePath = System.getProperty("USER.DIR");
         boolean done = false;
@@ -64,8 +70,20 @@ public class Main {
         }
         if (args.length > 3) {
             try {
-                uploadPort = Integer.parseInt(args[3]);
+                mcastPort = Integer.parseInt(args[3]);
                 if (mcastPort < 1 || mcastPort > 65535) {
+                    throw new NumberFormatException("Port number must be between 1-65535");
+                }
+            } catch (NumberFormatException nfe) {
+                System.out.println(nfe);
+                System.out.println(USAGE);
+                System.exit(0);
+            }
+        }
+        if (args.length > 4) {
+            try {
+                uploadPort = Integer.parseInt(args[4]);
+                if (uploadPort < 1 || uploadPort > 65535) {
                     throw new NumberFormatException("Port number must be between 1-65535");
                 }
             } catch (NumberFormatException nfe) {
@@ -79,14 +97,7 @@ public class Main {
 
         try {
             System.out.println(commands);
-            MulticastSocket ms = new MulticastSocket(mcastPort);
-            ms.joinGroup(InetAddress.getByName(mcastAddress));
-            System.out.println("Joined the multicast group " + mcastAddress + " on " + mcastPort);
-            Responder responder = new Responder(ms, uploadPort, sharePath);
-            responder.start();
-            System.out.println("Sharing files in " + sharePath + " on port " + uploadPort);
-            Client client = new Client(ms, savePath, responsePort, responseTimeout, mcastPort, mcastAddress);
-            
+            Peer peer = new Peer(sharePath, savePath, mcastAddress, mcastPort, uploadPort, responsePort, responseTimeout);
             BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
             String line;
             while (!done) {
@@ -95,7 +106,7 @@ public class Main {
                 if (line.equals(Helper.SEARCH)) {
                     System.out.print("Enter the file name to search:");
                     line = in.readLine();
-                    client.search(line);
+                    peer.search(line);
                 } else if (line.equals(Helper.DOWNLOAD)) {
                     System.out.print("File name:");
                     String fn = in.readLine();
@@ -103,7 +114,7 @@ public class Main {
                     String sa = in.readLine();
                     System.out.print("Server port:");
                     int sp = Integer.parseInt(in.readLine());
-                    client.download(fn, sa, sp);
+                    peer.download(fn, sa, sp);
                 } else if (line.equals("help")) {
                     System.out.println(commands);
                 } else if (line.equals("quit")) {

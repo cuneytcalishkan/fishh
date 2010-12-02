@@ -9,13 +9,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import util.Helper;
 
 /**
- *
+ * Downloads the specified file from the given server on the given port and saves
+ * the downloaded file to the specified save path. If the save path is the same place
+ * where the given client shares files, the server is called for an update of the
+ * shared files.
  * @author CUNEYT
  */
 public class FileDownloader implements Runnable {
@@ -27,6 +29,8 @@ public class FileDownloader implements Runnable {
     private BufferedReader reader;
     private PrintWriter writer;
     private String savePath;
+    private InputStream isr;
+    private FileOutputStream fos;
 
     /**
      * Downloads the specified file from the given server on the given port and saves
@@ -53,7 +57,7 @@ public class FileDownloader implements Runnable {
             writer.println(fileName);
             String result = reader.readLine();
             if (result.equals(Helper.NOT_FOUND)) {
-                System.out.println(fileName + " is not shared any more.");
+                System.out.println("\n" + fileName + " is not shared any more.");
                 closeConnection();
                 return;
             }
@@ -63,27 +67,44 @@ public class FileDownloader implements Runnable {
                 save = save.getParentFile();
             }
             fileName = save.getAbsolutePath() + File.separator + fileName;
-            InputStream isr = socket.getInputStream();
-            OutputStream fos = new FileOutputStream(fileName);
-            System.out.println("Saving file to " + fileName);
-            System.out.println("Started downloading " + fileName + " from " + server + " on port " + port);
+            isr = socket.getInputStream();
+            fos = new FileOutputStream(fileName);
+            System.out.println("\nSaving file to " + fileName);
+            System.out.println("\nStarted downloading " + fileName + " from " + server + " on port " + port);
             byte[] buf = new byte[1024];
             while (isr.read(buf) != -1) {
                 fos.write(buf);
             }
-            fos.flush();
-            fos.close();
-            isr.close();
-            closeConnection();
-            System.out.println("Finished downloading " + fileName);
+            System.out.println("\nFinished downloading " + fileName);
         } catch (Exception ex) {
             System.out.println(ex);
+        } finally {
+            closeConnection();
         }
     }
 
-    private void closeConnection() throws IOException {
-        reader.close();
-        writer.close();
-        socket.close();
+    /**
+     * Closes the necessary input and output stream readers and writers related to the connection or file.
+     */
+    private void closeConnection() {
+        try {
+            if (reader != null) {
+                reader.close();
+            }
+            if (writer != null) {
+                writer.close();
+            }
+            if (socket != null) {
+                socket.close();
+            }
+            if (fos != null) {
+                fos.close();
+            }
+            if (isr != null) {
+                isr.close();
+            }
+        } catch (IOException ex) {
+            System.out.println(ex);
+        }
     }
 }

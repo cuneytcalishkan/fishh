@@ -13,7 +13,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * This class is responsible for accepting TCP/IP connections on the specified port
+ * to create a new Thread for handling the file request.
  * @author CUNEYT
  */
 public class FileServer extends Thread {
@@ -22,6 +23,12 @@ public class FileServer extends Thread {
     private String sharePath;
     private Executor executor;
 
+    /**
+     * This class is responsible for accepting TCP/IP connections on the specified port
+     * to create a new Thread for handling the file request.
+     * @param base the path to the shared files
+     * @param port the port to listen for connections
+     */
     public FileServer(String base, int port) {
         this.sharePath = base;
         this.port = port;

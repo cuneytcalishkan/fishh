@@ -25,15 +25,45 @@ import java.util.List;
  */
 public class Helper {
 
+    /**
+     *
+     */
     public static final String SHARE = "share";
+    /**
+     *
+     */
     public static final String UNSHARE = "unshare";
+    /**
+     *
+     */
     public static final String SEARCH = "search";
+    /**
+     *
+     */
     public static final String UNKNOWN = "unknown command";
+    /**
+     * 
+     */
     public static final String NOT_FOUND = "not-found";
+    /**
+     *
+     */
     public static final String SEPARATOR = "*";
+    /**
+     *
+     */
     public static final String DONE = "done";
+    /**
+     *
+     */
     public static final String OK = "ok";
+    /**
+     *
+     */
     public static final String DOWNLOAD = "download";
+    /**
+     *
+     */
     public static final String INFORM = "inform";
 
     /**
