@@ -90,13 +90,6 @@ public class FileUploader implements Runnable {
      */
     private void closeConnection() {
         try {
-            if (reader != null) {
-                reader.close();
-            }
-            if (writer != null) {
-                writer.flush();
-                writer.close();
-            }
             if (socket != null) {
                 socket.close();
             }
