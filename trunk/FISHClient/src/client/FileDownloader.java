@@ -91,7 +91,6 @@ public class FileDownloader implements Runnable {
             byte[] buf = new byte[bufSize];
             while ((result = isr.read(buf)) != -1) {
                 osw.write(buf);
-                osw.flush();
                 System.out.println(result + " bytes has been written");
                 remaining -= result;
                 if (remaining < bufSize && remaining > 0) {
@@ -115,19 +114,15 @@ public class FileDownloader implements Runnable {
      */
     private void closeConnection() {
         try {
-            if (reader != null) {
-                reader.close();
-            }
-            if (writer != null) {
-                writer.flush();
-                writer.close();
-            }
             if (socket != null) {
                 socket.close();
             }
             if (osw != null) {
                 osw.flush();
                 osw.close();
+            }
+            if (isr != null) {
+                isr.close();
             }
         } catch (IOException ex) {
             System.out.println(ex);
