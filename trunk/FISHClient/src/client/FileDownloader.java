@@ -91,11 +91,13 @@ public class FileDownloader implements Runnable {
             byte[] buf = new byte[bufSize];
             while ((result = isr.read(buf)) != -1) {
                 osw.write(buf);
+                osw.flush();
+                System.out.println(result + " bytes has been written");
                 remaining -= result;
                 if (remaining < bufSize && remaining > 0) {
                     bufSize = (int) remaining;
+                    buf = new byte[bufSize];
                 }
-                buf = new byte[bufSize];
             }
             System.out.println("\nFinished downloading " + fileName);
             if (savePath.equals(c.getBasePath())) {
