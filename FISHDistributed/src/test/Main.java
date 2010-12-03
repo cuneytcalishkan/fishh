@@ -31,8 +31,9 @@ public class Main {
                 + "[shared path] "
                 + "[save path] "
                 + "[multicast address] "
-                + "[multicast port(1-65535)] "
-                + "[upload port(1-65535)]";
+                + "[multicast port] "
+                + "[upload port]"
+                + "[response port]";
         String sharePath = System.getProperty("USER.DIR");
         String savePath = System.getProperty("USER.DIR");
         boolean done = false;
@@ -75,9 +76,8 @@ public class Main {
                     throw new NumberFormatException("Port number must be between 1-65535");
                 }
             } catch (NumberFormatException nfe) {
-                System.out.println(nfe);
                 System.out.println(USAGE);
-                System.exit(0);
+                System.exit(-1);
             }
         }
         if (args.length > 4) {
@@ -87,7 +87,18 @@ public class Main {
                     throw new NumberFormatException("Port number must be between 1-65535");
                 }
             } catch (NumberFormatException nfe) {
-                System.out.println(nfe);
+                System.out.println(USAGE);
+                System.exit(0);
+            }
+        }
+
+        if (args.length > 5) {
+            try {
+                responsePort = Integer.parseInt(args[5]);
+                if (responsePort < 1 || responsePort > 65535) {
+                    throw new NumberFormatException("Port number must be between 1-65535");
+                }
+            } catch (NumberFormatException nfe) {
                 System.out.println(USAGE);
                 System.exit(0);
             }

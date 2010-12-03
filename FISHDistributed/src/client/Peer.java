@@ -4,6 +4,7 @@
  */
 package client;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -77,6 +78,16 @@ public class Peer {
 
     private void init() {
         try {
+            File f = new File(sharePath);
+            if (!f.isDirectory()) {
+                System.out.println("Shared path has to point to a directory!");
+                System.exit(-1);
+            }
+            f = new File(savePath);
+            if (!f.isDirectory()) {
+                System.out.println("Save path has to point to a directory!");
+                System.exit(-1);
+            }
             ms = new MulticastSocket(mcastPort);
             ms.joinGroup(InetAddress.getByName(mcastAddress));
             System.out.println("Joined the multicast group " + mcastAddress + " on " + mcastPort);

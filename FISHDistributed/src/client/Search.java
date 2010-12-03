@@ -63,17 +63,18 @@ public class Search implements Runnable {
                     InetAddress.getByName(mcastAddress), mcastPort);
             ms.send(dp);
             ds = new DatagramSocket(responsePort);
-            buf = new byte[1024];
-            dp = new DatagramPacket(buf, buf.length);
             long expire = System.currentTimeMillis() + responseTimeout * 1000;
             while (System.currentTimeMillis() < expire) {
+                buf = new byte[4096];
+                dp = new DatagramPacket(buf, buf.length);
                 ds.setSoTimeout((int) (expire - System.currentTimeMillis()));
                 ds.receive(dp);
-                String[] response = (new String(dp.getData()).trim()).split(",");
-                if (response[0].equals(Helper.INFORM) && response[1].equals(fileName)) {
-                    for (int i = 3; i < response.length; i++) {
+                byte[] data = dp.getData();
+                String[] response = (new String(data, 0, data.length).trim()).split(",");
+                if (response[0].equals(Helper.INFORM)) {
+                    for (int i = 2; i < response.length; i++) {
                         String line = dp.getAddress().getHostAddress()
-                                + "," + response[2] + "," + response[i];
+                                + "," + response[1] + "," + response[i];
                         result.add(line);
                     }
                 }
