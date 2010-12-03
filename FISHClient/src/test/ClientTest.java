@@ -110,13 +110,20 @@ public class ClientTest {
                         System.out.println(r);
                     }
                 } else if (line.equals(Helper.DOWNLOAD)) {
-                    System.out.print("File name:");
-                    String fn = in.readLine();
-                    System.out.print("Server address:");
-                    String sa = in.readLine();
-                    System.out.print("Server port:");
-                    int sp = Integer.parseInt(in.readLine());
-                    c.download(fn, sa, sp);
+                    try {
+                        System.out.print("File name:");
+                        String fn = in.readLine();
+                        System.out.print("Server address:");
+                        String sa = in.readLine();
+                        System.out.print("Server port:");
+                        int sp = Integer.parseInt(in.readLine());
+                        if (sp < 1 || sp > 65535) {
+                            throw new NumberFormatException("Port number has to be between 1-65535");
+                        }
+                        c.download(fn, sa, sp);
+                    } catch (NumberFormatException nfe) {
+                        System.out.println(nfe);
+                    }
                 } else if (line.equals("help")) {
                     System.out.println(commands);
                 } else if (line.equals("quit")) {

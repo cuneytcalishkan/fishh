@@ -30,7 +30,6 @@ public class Ponger implements Runnable {
             ServerSocket ponger = new ServerSocket(port);
             while (true) {
                 ponger.accept();
-                System.out.println("Ping received.");
             }
         } catch (IOException ex) {
             Logger.getLogger(Ponger.class.getName()).log(Level.SEVERE, null, ex);
