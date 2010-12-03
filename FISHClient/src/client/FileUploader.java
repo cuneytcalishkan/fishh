@@ -71,6 +71,8 @@ public class FileUploader implements Runnable {
             byte[] buf = new byte[bufSize];
             while ((result = isr.read(buf)) != -1) {
                 osw.write(buf);
+                osw.flush();
+                System.out.println(result + " bytes have been pushed.");
                 remaining -= result;
                 if (remaining < bufSize && remaining > 0) {
                     bufSize = (int) remaining;
@@ -90,15 +92,15 @@ public class FileUploader implements Runnable {
      */
     private void closeConnection() {
         try {
-            if (socket != null) {
-                socket.close();
-            }
             if (osw != null) {
                 osw.flush();
                 osw.close();
             }
             if (isr != null) {
                 isr.close();
+            }
+            if (socket != null) {
+                socket.close();
             }
         } catch (IOException ex) {
             System.out.println(ex);

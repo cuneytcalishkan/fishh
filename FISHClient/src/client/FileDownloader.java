@@ -82,7 +82,7 @@ public class FileDownloader implements Runnable {
             isr = socket.getInputStream();
             System.out.println("\nDownloading file to " + fileName);
 
-            int bufSize = 1024;
+            int bufSize = 0124;
             long remaining = length;
             if (remaining < bufSize) {
                 bufSize = (int) remaining;
@@ -91,7 +91,7 @@ public class FileDownloader implements Runnable {
             byte[] buf = new byte[bufSize];
             while ((result = isr.read(buf)) != -1) {
                 osw.write(buf);
-                System.out.println(result + " bytes has been written");
+                System.out.println(result + " bytes have been written");
                 remaining -= result;
                 if (remaining < bufSize && remaining > 0) {
                     bufSize = (int) remaining;
