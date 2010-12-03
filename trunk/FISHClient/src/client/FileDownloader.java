@@ -82,7 +82,7 @@ public class FileDownloader implements Runnable {
             isr = socket.getInputStream();
             System.out.println("\nDownloading file to " + fileName);
 
-            int bufSize = 0124;
+            int bufSize = 1024;
             long remaining = length;
             if (remaining < bufSize) {
                 bufSize = (int) remaining;
@@ -98,6 +98,7 @@ public class FileDownloader implements Runnable {
                     buf = new byte[bufSize];
                 }
             }
+            writer.println(Helper.DONE);
             System.out.println("\nFinished downloading " + fileName);
             if (savePath.equals(c.getBasePath())) {
                 c.updateSharedFiles();
