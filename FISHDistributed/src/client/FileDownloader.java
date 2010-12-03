@@ -70,13 +70,10 @@ public class FileDownloader implements Runnable {
             for (int i = 0; i < files.length; i++) {
                 File file = files[i];
                 if (file.getName().equals(fileName)) {
-                    if (file.delete()) {
-                        System.out.println("File deleted.");
-                    }
+                    file.delete();
                     break;
                 }
             }
-
             fileName = save.getPath() + File.separator + fileName;
             osw = new FileOutputStream(fileName);
             isr = socket.getInputStream();
