@@ -74,8 +74,8 @@ public class FileUploader implements Runnable {
                 remaining -= result;
                 if (remaining < bufSize && remaining > 0) {
                     bufSize = (int) remaining;
+                    buf = new byte[bufSize];
                 }
-                buf = new byte[bufSize];
             }
             System.out.println("\nFinished uploading file " + fileName);
         } catch (IOException ex) {
