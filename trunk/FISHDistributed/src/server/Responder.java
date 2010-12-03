@@ -53,9 +53,8 @@ public class Responder extends Thread {
                 dp = new DatagramPacket(buf, buf.length);
                 ms.receive(dp);
                 String[] message = (new String(buf, 0, dp.getLength()).trim()).split(",");
-                //&& !dp.getAddress().equals(InetAddress.getLocalHost())
                 if (message[0].equals(Helper.SEARCH)) {
-                    executor.execute(new Inform(dp, uploadPort, sharedFiles));
+                    executor.execute(new Inform(message[1], dp.getAddress(), Integer.parseInt(message[2]), uploadPort, sharedFiles));
                 }
             }
         } catch (IOException ex) {

@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import util.Helper;
 
 /**
@@ -29,8 +31,8 @@ public class FileDownloader implements Runnable {
     private BufferedReader reader;
     private PrintWriter writer;
     private String savePath;
+    private FileOutputStream osw;
     private InputStream isr;
-    private FileOutputStream fos;
 
     /**
      * Downloads the specified file from the given server on the given port and saves
@@ -55,29 +57,36 @@ public class FileDownloader implements Runnable {
             reader = Helper.getBufferedReader(socket);
             writer = Helper.getPrintWriter(socket);
             writer.println(fileName);
-            String result = reader.readLine();
-            if (result.equals(Helper.NOT_FOUND)) {
+            String found = reader.readLine();
+            if (found.equals(Helper.NOT_FOUND)) {
                 System.out.println("\n" + fileName + " is not shared any more.");
                 closeConnection();
                 return;
             }
-            long fileLength = Long.parseLong(reader.readLine());
-            File save = new File(savePath);
-            if (!save.isDirectory()) {
-                save = save.getParentFile();
-            }
-            fileName = save.getAbsolutePath() + File.separator + fileName;
+            long length = Long.parseLong(reader.readLine());
+            fileName = savePath + File.separator + fileName;
+            osw = new FileOutputStream(fileName);
             isr = socket.getInputStream();
-            fos = new FileOutputStream(fileName);
-            System.out.println("\nSaving file to " + fileName);
-            int ch;
-            while ((ch = isr.read()) != -1) {
-                fos.write(ch);
+            System.out.println("\nDownloading file to " + fileName);
+
+            int bufSize = 1024;
+            long remaining = length;
+            if (remaining < bufSize) {
+                bufSize = (int) remaining;
             }
-            fos.flush();
+            int result;
+            byte[] buf = new byte[bufSize];
+            while ((result = isr.read(buf)) != -1) {
+                osw.write(buf);
+                remaining -= result;
+                if (remaining < bufSize && remaining > 0) {
+                    bufSize = (int) remaining;
+                }
+                buf = new byte[bufSize];
+            }
             System.out.println("\nFinished downloading " + fileName);
-        } catch (Exception ex) {
-            System.out.println(ex);
+        } catch (IOException ex) {
+            Logger.getLogger(FileDownloader.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             closeConnection();
         }
@@ -92,16 +101,15 @@ public class FileDownloader implements Runnable {
                 reader.close();
             }
             if (writer != null) {
+                writer.flush();
                 writer.close();
             }
             if (socket != null) {
                 socket.close();
             }
-            if (fos != null) {
-                fos.close();
-            }
-            if (isr != null) {
-                isr.close();
+            if (osw != null) {
+                osw.flush();
+                osw.close();
             }
         } catch (IOException ex) {
             System.out.println(ex);
