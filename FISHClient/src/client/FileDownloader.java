@@ -67,7 +67,8 @@ public class FileDownloader implements Runnable {
                 return;
             }
             long length = Long.parseLong(reader.readLine());
-            fileName = savePath + File.separator + fileName;
+            File save = new File(savePath);
+            fileName = save.getPath() + File.separator + fileName;
             osw = new FileOutputStream(fileName);
             isr = socket.getInputStream();
             System.out.println("\nDownloading file to " + fileName);
