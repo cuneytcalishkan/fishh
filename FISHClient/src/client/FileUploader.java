@@ -83,7 +83,13 @@ public class FileUploader implements Runnable {
         } catch (IOException ex) {
             Logger.getLogger(FileUploader.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
-            closeConnection();
+            try {
+                if (reader.readLine().equals(Helper.DONE)) {
+                    closeConnection();
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(FileUploader.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 
