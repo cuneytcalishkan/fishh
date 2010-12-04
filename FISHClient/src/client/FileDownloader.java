@@ -6,11 +6,11 @@ package client;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import util.ByteStream;
 import util.Helper;
 
 /**
@@ -29,7 +29,6 @@ public class FileDownloader implements Runnable {
     private BufferedReader reader;
     private PrintWriter writer;
     private String savePath;
-    private FileOutputStream osw;
     private InputStream isr;
     private Client c;
 
@@ -61,10 +60,8 @@ public class FileDownloader implements Runnable {
             String found = reader.readLine();
             if (found.equals(Helper.NOT_FOUND)) {
                 System.out.println("\n" + fileName + " is not shared.");
-                closeConnection();
                 return;
             }
-            long length = Long.parseLong(reader.readLine());
             File save = new File(savePath);
             File[] files = save.listFiles();
 
@@ -76,19 +73,10 @@ public class FileDownloader implements Runnable {
                 }
             }
             fileName = save.getPath() + File.separator + fileName;
-            osw = new FileOutputStream(fileName);
             isr = socket.getInputStream();
-            System.out.println("\nDownloading file to " + fileName + ", " + length);
-
-            int ch;
-            while ((ch = isr.read()) != -1) {
-                osw.write(ch);
-                osw.flush();
-                length--;
-            }
-            writer.println();
-            System.out.println("\nFinished downloading " + fileName
-                    + "," + (length == 0 ? "successfully, " : "incomplete, ") + length);
+            System.out.println("\nDownloading file to " + fileName);
+            ByteStream.toFile(isr, new File(fileName));
+            System.out.println("\nFinished downloading " + fileName);
             if (savePath.equals(c.getBasePath())) {
                 c.share();
             }
@@ -104,9 +92,8 @@ public class FileDownloader implements Runnable {
      */
     private void closeConnection() {
         try {
-            if (osw != null) {
-                osw.flush();
-                osw.close();
+            if (isr != null) {
+                isr.close();
             }
             if (socket != null) {
                 socket.close();
