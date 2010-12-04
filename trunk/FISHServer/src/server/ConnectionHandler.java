@@ -12,8 +12,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.MatchMode;
@@ -55,6 +53,9 @@ class ConnectionHandler implements Runnable {
             String command = "";
             while (!done) {
                 command = reader.readLine();
+                if (command == null) {
+                    throw new Exception("Connection has been closed by client.");
+                }
                 if (command.equals(Helper.SHARE)) {
                     share();
                 } else if (command.equals(Helper.UNSHARE)) {
@@ -81,23 +82,33 @@ class ConnectionHandler implements Runnable {
      * of files this Peer is going to share. The data is then stored persistently.
      */
     private void share() {
+        unshare();
         Transaction t = null;
         Session session = null;
         try {
-            int sharePort = Integer.parseInt(reader.readLine());
-            int pingPort = Integer.parseInt(reader.readLine());
             session = HibernateUtil.getSession();
             t = session.beginTransaction();
-            Peer peer = new Peer(peerAddress, sharePort, pingPort);
+            int sharePort = Integer.parseInt(reader.readLine());
+            int pingPort = Integer.parseInt(reader.readLine());
+            Peer peer = (Peer) session.createCriteria(Peer.class).
+                    add(Restrictions.eq("address", peerAddress)).uniqueResult();
+            if (peer == null) {
+                peer = new Peer(peerAddress, sharePort, pingPort);
+            }
             String fileName;
             while (((fileName = reader.readLine()) != null) && !fileName.equals(Helper.DONE)) {
-                FFile file = (FFile) session.createCriteria(FFile.class).add(Restrictions.eq("name", fileName.toLowerCase())).uniqueResult();
+                FFile file = (FFile) session.createCriteria(FFile.class).
+                        add(Restrictions.eq("name", fileName.toLowerCase())).uniqueResult();
                 if (file == null) {
                     file = new FFile(fileName);
                 }
-                file.addPeer(peer);
-                peer.addFile(file);
-                session.persist(file);
+                if (!peer.getFileList().contains(file)) {
+                    peer.addFile(file);
+                }
+                if (!file.getPeerList().contains(peer)) {
+                    file.addPeer(peer);
+                }
+                session.persist(peer);
             }
             if (fileName == null) {
                 t.rollback();
@@ -121,12 +132,12 @@ class ConnectionHandler implements Runnable {
         Transaction t = null;
         try {
             session = HibernateUtil.getSession();
-            t = session.beginTransaction();
             Peer p = (Peer) session.createCriteria(Peer.class).
                     add(Restrictions.eq("address", peerAddress)).uniqueResult();
             if (p == null) {
                 return;
             }
+            t = session.beginTransaction();
             List<FFile> peerFiles = p.getFileList();
             for (FFile f : peerFiles) {
                 f.getPeerList().remove(p);
@@ -183,7 +194,7 @@ class ConnectionHandler implements Runnable {
             t.commit();
         } catch (IOException ex) {
             t.rollback();
-            Logger.getLogger(ConnectionHandler.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex);
         } finally {
             session.close();
         }
