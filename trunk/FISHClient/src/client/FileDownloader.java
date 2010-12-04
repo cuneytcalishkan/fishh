@@ -81,10 +81,12 @@ public class FileDownloader implements Runnable {
             System.out.println("\nDownloading file to " + fileName);
 
             int ch;
+            System.out.println(length);
             while ((ch = isr.read()) != -1) {
                 osw.write(ch);
                 length--;
             }
+            System.out.println(length);
             osw.flush();
             System.out.println("\nFinished downloading " + fileName
                     + "," + (length == 0 ? "successfully." : "incomplete."));
