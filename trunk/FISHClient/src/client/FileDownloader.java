@@ -60,7 +60,7 @@ public class FileDownloader implements Runnable {
             writer.println(fileName);
             String found = reader.readLine();
             if (found.equals(Helper.NOT_FOUND)) {
-                System.out.println("\n" + fileName + " is not shared any more.");
+                System.out.println("\n" + fileName + " is not shared.");
                 closeConnection();
                 return;
             }
@@ -78,20 +78,17 @@ public class FileDownloader implements Runnable {
             fileName = save.getPath() + File.separator + fileName;
             osw = new FileOutputStream(fileName);
             isr = socket.getInputStream();
-            System.out.println("\nDownloading file to " + fileName);
+            System.out.println("\nDownloading file to " + fileName + ", " + length);
 
             int ch;
-            System.out.println(length);
             while ((ch = isr.read()) != -1) {
                 osw.write(ch);
                 osw.flush();
                 length--;
             }
-            System.out.println(length);
-            System.out.println("\nFinished downloading " + fileName
-                    + "," + (length == 0 ? "successfully." : "incomplete."));
             writer.println();
-            reader.readLine();
+            System.out.println("\nFinished downloading " + fileName
+                    + "," + (length == 0 ? "successfully, " : "incomplete, ") + length);
             if (savePath.equals(c.getBasePath())) {
                 c.share();
             }
