@@ -6,11 +6,11 @@ package client;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import util.ByteStream;
 import util.Helper;
 
 /**
@@ -29,7 +29,6 @@ public class FileDownloader implements Runnable {
     private BufferedReader reader;
     private PrintWriter writer;
     private String savePath;
-    private FileOutputStream osw;
     private InputStream isr;
 
     /**
@@ -57,11 +56,9 @@ public class FileDownloader implements Runnable {
             writer.println(fileName);
             String found = reader.readLine();
             if (found.equals(Helper.NOT_FOUND)) {
-                System.out.println("\n" + fileName + " is not shared any more.");
-                closeConnection();
+                System.out.println("\n" + fileName + " is not shared.");
                 return;
             }
-            long length = Long.parseLong(reader.readLine());
             File save = new File(savePath);
             File[] files = save.listFiles();
 
@@ -73,18 +70,10 @@ public class FileDownloader implements Runnable {
                 }
             }
             fileName = save.getPath() + File.separator + fileName;
-            osw = new FileOutputStream(fileName);
             isr = socket.getInputStream();
             System.out.println("\nDownloading file to " + fileName);
-
-            int ch;
-            while ((ch = isr.read()) != -1) {
-                osw.write(ch);
-                length--;
-            }
-            osw.flush();
-            System.out.println("\nFinished downloading " + fileName
-                    + "," + (length == 0 ? "successfully." : "incomplete."));
+            ByteStream.toFile(isr, new File(fileName));
+            System.out.println("\nFinished downloading " + fileName);
         } catch (Exception ex) {
             System.out.println(ex);
         } finally {
@@ -97,9 +86,8 @@ public class FileDownloader implements Runnable {
      */
     private void closeConnection() {
         try {
-            if (osw != null) {
-                osw.flush();
-                osw.close();
+            if (isr != null) {
+                isr.close();
             }
             if (socket != null) {
                 socket.close();
