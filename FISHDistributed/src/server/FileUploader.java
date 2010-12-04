@@ -56,6 +56,8 @@ public class FileUploader implements Runnable {
             System.out.println("\nFinished uploading file " + fileName);
         } catch (Exception ex) {
             System.out.println(ex);
+        } finally {
+            closeConnection();
         }
     }
 
