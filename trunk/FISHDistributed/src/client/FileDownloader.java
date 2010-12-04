@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import util.Helper;
 
 /**
@@ -79,24 +77,16 @@ public class FileDownloader implements Runnable {
             isr = socket.getInputStream();
             System.out.println("\nDownloading file to " + fileName);
 
-            int bufSize = 1024;
-            long remaining = length;
-            if (remaining < bufSize) {
-                bufSize = (int) remaining;
+            int ch;
+            while ((ch = isr.read()) != -1) {
+                osw.write(ch);
+                length--;
             }
-            int result;
-            byte[] buf = new byte[bufSize];
-            while ((result = isr.read(buf)) != -1) {
-                osw.write(buf);
-                remaining -= result;
-                if (remaining < bufSize && remaining > 0) {
-                    bufSize = (int) remaining;
-                }
-                buf = new byte[bufSize];
-            }
-            System.out.println("\nFinished downloading " + fileName);
-        } catch (IOException ex) {
-            Logger.getLogger(FileDownloader.class.getName()).log(Level.SEVERE, null, ex);
+            osw.flush();
+            System.out.println("\nFinished downloading " + fileName
+                    + "," + (length == 0 ? "successfully." : "incomplete."));
+        } catch (Exception ex) {
+            System.out.println(ex);
         } finally {
             closeConnection();
         }
@@ -107,19 +97,12 @@ public class FileDownloader implements Runnable {
      */
     private void closeConnection() {
         try {
-            if (reader != null) {
-                reader.close();
-            }
-            if (writer != null) {
-                writer.flush();
-                writer.close();
-            }
-            if (socket != null) {
-                socket.close();
-            }
             if (osw != null) {
                 osw.flush();
                 osw.close();
+            }
+            if (socket != null) {
+                socket.close();
             }
         } catch (IOException ex) {
             System.out.println(ex);
