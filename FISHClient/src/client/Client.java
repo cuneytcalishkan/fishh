@@ -61,8 +61,8 @@ public class Client {
         this.sharingPort = sharePort;
         this.pingPort = pingPort;
         this.socket = new Socket(server, serverPort);
-        br = Helper.getBufferedReader(socket);
-        pw = Helper.getPrintWriter(socket);
+        this.br = Helper.getBufferedReader(socket);
+        this.pw = Helper.getPrintWriter(socket);
         init();
     }
 
@@ -101,7 +101,8 @@ public class Client {
      */
     public void share() {
         try {
-            Helper.discoverFiles(this.basePath, this.sharedFiles);
+            sharedFiles = new ArrayList<Object>();
+            Helper.discoverFiles(basePath, sharedFiles);
             pw.println(Helper.SHARE);
             pw.println(sharingPort);
             pw.println(pingPort);
@@ -147,14 +148,7 @@ public class Client {
      * to unshare the previous entries but to share the new ones
      */
     public void updateSharedFiles() {
-        try {
-            sharedFiles = new ArrayList<Object>();
-            Helper.discoverFiles(basePath, sharedFiles);
-            unshare();
-            share();
-        } catch (Exception ex) {
-            System.out.println(ex);
-        }
+        share();
     }
 
     /**

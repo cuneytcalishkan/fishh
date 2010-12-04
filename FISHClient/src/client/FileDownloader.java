@@ -11,8 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import util.Helper;
 
 /**
@@ -84,27 +82,26 @@ public class FileDownloader implements Runnable {
 
             int bufSize = 1024;
             long remaining = length;
-            if (remaining < bufSize) {
+            if (remaining < bufSize && remaining > 0) {
                 bufSize = (int) remaining;
             }
             int result;
             byte[] buf = new byte[bufSize];
             while ((result = isr.read(buf)) != -1) {
                 osw.write(buf);
-                System.out.println(result + " bytes have been written");
+                writer.println();
                 remaining -= result;
                 if (remaining < bufSize && remaining > 0) {
                     bufSize = (int) remaining;
                     buf = new byte[bufSize];
                 }
             }
-            writer.println(Helper.DONE);
             System.out.println("\nFinished downloading " + fileName);
             if (savePath.equals(c.getBasePath())) {
                 c.updateSharedFiles();
             }
-        } catch (IOException ex) {
-            Logger.getLogger(FileDownloader.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            System.out.println(ex);
         } finally {
             closeConnection();
         }
@@ -115,15 +112,15 @@ public class FileDownloader implements Runnable {
      */
     private void closeConnection() {
         try {
-            if (socket != null) {
-                socket.close();
-            }
             if (osw != null) {
                 osw.flush();
                 osw.close();
             }
             if (isr != null) {
                 isr.close();
+            }
+            if (socket != null) {
+                socket.close();
             }
         } catch (IOException ex) {
             System.out.println(ex);
