@@ -84,10 +84,10 @@ public class FileDownloader implements Runnable {
             System.out.println(length);
             while ((ch = isr.read()) != -1) {
                 osw.write(ch);
+                osw.flush();
                 length--;
             }
             System.out.println(length);
-            osw.flush();
             System.out.println("\nFinished downloading " + fileName
                     + "," + (length == 0 ? "successfully." : "incomplete."));
             if (savePath.equals(c.getBasePath())) {
