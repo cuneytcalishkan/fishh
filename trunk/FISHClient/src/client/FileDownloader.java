@@ -90,6 +90,8 @@ public class FileDownloader implements Runnable {
             System.out.println(length);
             System.out.println("\nFinished downloading " + fileName
                     + "," + (length == 0 ? "successfully." : "incomplete."));
+            writer.println();
+            reader.readLine();
             if (savePath.equals(c.getBasePath())) {
                 c.share();
             }
