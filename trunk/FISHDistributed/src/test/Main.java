@@ -137,6 +137,7 @@ public class Main {
                     System.out.println(commands);
                 } else if (line.equals("quit")) {
                     done = true;
+                } else if (line.isEmpty()) {
                 } else {
                     System.out.println("Invalid command! Type help to see commands.");
                 }
