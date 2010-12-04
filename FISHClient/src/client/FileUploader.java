@@ -57,18 +57,16 @@ public class FileUploader implements Runnable {
             length = file.length();
             writer.println(Helper.OK);
             writer.println(length);
-            System.out.println("\nUploading file " + fileName + " to " + socket.getInetAddress().getHostAddress());
-            System.out.println(length);
+            System.out.println("\nUploading file " + fileName + ", "
+                    + length + ", to " + socket.getInetAddress().getHostAddress());
             int ch;
             while ((ch = isr.read()) != -1) {
                 osw.write(ch);
-                osw.flush();
                 length--;
             }
-            System.out.println(length);
-            System.out.println("\nFinished uploading file " + fileName);
+            osw.flush();
             reader.readLine();
-            writer.println();
+            System.out.println("\nFinished uploading file " + fileName + ", " + length);
         } catch (Exception ex) {
             System.out.println(ex);
         } finally {
