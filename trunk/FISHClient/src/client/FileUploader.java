@@ -12,8 +12,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import util.Helper;
 
 /**
@@ -47,32 +45,30 @@ public class FileUploader implements Runnable {
             writer = Helper.getPrintWriter(socket);
             String fileName = reader.readLine();
             File file = Helper.getFile(path, fileName);
-            long length;
+            long length = 1;
             if (file == null) {
                 writer.println(Helper.NOT_FOUND);
                 closeConnection();
                 return;
-            } else {
-                length = file.length();
-                writer.println(Helper.OK);
-                writer.println(length);
             }
+
             isr = new FileInputStream(file);
             osw = socket.getOutputStream();
-
+            length = file.length();
+            writer.println(Helper.OK);
+            writer.println(length);
             System.out.println("\nStarted uploading file " + fileName + " to " + socket.getInetAddress().getHostAddress());
 
             int bufSize = 1024;
             long remaining = length;
-            if (remaining < bufSize) {
+            if (remaining < bufSize && remaining > 0) {
                 bufSize = (int) remaining;
             }
             int result;
             byte[] buf = new byte[bufSize];
             while ((result = isr.read(buf)) != -1) {
                 osw.write(buf);
-                osw.flush();
-                System.out.println(result + " bytes have been pushed.");
+                reader.readLine();
                 remaining -= result;
                 if (remaining < bufSize && remaining > 0) {
                     bufSize = (int) remaining;
@@ -80,16 +76,10 @@ public class FileUploader implements Runnable {
                 }
             }
             System.out.println("\nFinished uploading file " + fileName);
-        } catch (IOException ex) {
-            Logger.getLogger(FileUploader.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            System.out.println(ex);
         } finally {
-            try {
-                if (reader.readLine().equals(Helper.DONE)) {
-                    closeConnection();
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(FileUploader.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            closeConnection();
         }
     }
 

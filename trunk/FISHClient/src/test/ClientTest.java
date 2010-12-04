@@ -10,8 +10,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import util.Configure;
 import util.Helper;
 
@@ -130,15 +128,16 @@ public class ClientTest {
                     c.unshare();
                     c.closeConnection();
                     done = true;
+                } else if (line.isEmpty()) {
                 } else {
                     System.out.println("Invalid command! Type help to see commands.");
                 }
             }
             System.exit(1);
         } catch (UnknownHostException ex) {
-            Logger.getLogger(ClientTest.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex);
         } catch (IOException ex) {
-            Logger.getLogger(ClientTest.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println(ex);
         }
     }
 }
