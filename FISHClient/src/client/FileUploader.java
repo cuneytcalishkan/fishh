@@ -6,12 +6,11 @@ package client;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import util.ByteStream;
 import util.Helper;
 
 /**
@@ -25,7 +24,6 @@ public class FileUploader implements Runnable {
     private String path;
     private BufferedReader reader;
     private PrintWriter writer;
-    private InputStream isr;
     private OutputStream osw;
 
     /**
@@ -45,32 +43,19 @@ public class FileUploader implements Runnable {
             writer = Helper.getPrintWriter(socket);
             String fileName = reader.readLine();
             File file = Helper.getFile(path, fileName);
-            long length = 1;
             if (file == null) {
                 writer.println(Helper.NOT_FOUND);
                 closeConnection();
                 return;
             }
 
-            isr = new FileInputStream(file);
             osw = socket.getOutputStream();
-            length = file.length();
             writer.println(Helper.OK);
-            writer.println(length);
-            System.out.println("\nUploading file " + fileName + ", "
-                    + length + ", to " + socket.getInetAddress().getHostAddress());
-            int ch;
-            while ((ch = isr.read()) != -1) {
-                osw.write(ch);
-                length--;
-            }
-            osw.flush();
-            reader.readLine();
-            System.out.println("\nFinished uploading file " + fileName + ", " + length);
+            System.out.println("\nUploading file " + fileName + " to " + socket.getInetAddress().getHostAddress());
+            ByteStream.toStream(osw, file);
+            System.out.println("\nFinished uploading file " + fileName);
         } catch (Exception ex) {
             System.out.println(ex);
-        } finally {
-            closeConnection();
         }
     }
 
@@ -80,11 +65,7 @@ public class FileUploader implements Runnable {
     private void closeConnection() {
         try {
             if (osw != null) {
-                osw.flush();
                 osw.close();
-            }
-            if (isr != null) {
-                isr.close();
             }
             if (socket != null) {
                 socket.close();
