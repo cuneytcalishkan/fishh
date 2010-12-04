@@ -87,15 +87,21 @@ public class FileDownloader implements Runnable {
             }
             int result;
             byte[] buf = new byte[bufSize];
-            while ((result = isr.read(buf)) != -1) {
+            while (remaining > 0) {
+                result = isr.read(buf);
+                if (result == -1) {
+                    break;
+                }
                 osw.write(buf);
-                writer.println();
                 remaining -= result;
-                if (remaining < bufSize && remaining > 0) {
+                if (remaining < bufSize) {
                     bufSize = (int) remaining;
                     buf = new byte[bufSize];
                 }
             }
+            osw.flush();
+            String done = reader.readLine();
+            writer.println(Helper.DONE);
             System.out.println("\nFinished downloading " + fileName);
             if (savePath.equals(c.getBasePath())) {
                 c.updateSharedFiles();

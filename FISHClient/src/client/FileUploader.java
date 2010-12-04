@@ -66,15 +66,21 @@ public class FileUploader implements Runnable {
             }
             int result;
             byte[] buf = new byte[bufSize];
-            while ((result = isr.read(buf)) != -1) {
+            while (remaining > 0) {
+                result = isr.read(buf);
+                if (result == -1) {
+                    break;
+                }
                 osw.write(buf);
-                reader.readLine();
                 remaining -= result;
-                if (remaining < bufSize && remaining > 0) {
+                if (remaining < bufSize) {
                     bufSize = (int) remaining;
                     buf = new byte[bufSize];
                 }
             }
+            osw.flush();
+            writer.println(Helper.DONE);
+            String done = reader.readLine();
             System.out.println("\nFinished uploading file " + fileName);
         } catch (Exception ex) {
             System.out.println(ex);
