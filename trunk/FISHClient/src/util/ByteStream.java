@@ -70,27 +70,6 @@ public class ByteStream {
         os.flush();
     }
 
-    private static byte[] toByteArray(InputStream ins, int an_int) throws
-            java.io.IOException,
-            Exception {
-
-        byte[] ret = new byte[an_int];
-
-        int offset = 0;
-        int numRead = 0;
-        int outstanding = an_int;
-
-        while ((offset < an_int)
-                && ((numRead = ins.read(ret, offset, outstanding)) > 0)) {
-            offset += numRead;
-            outstanding = an_int - offset;
-        }
-        if (offset < ret.length) {
-            throw new Exception("Could not completely read from stream, numRead=" + numRead + ", ret.length=" + ret.length); // ???
-        }
-        return ret;
-    }
-
     private static void toFile(InputStream ins, FileOutputStream fos, int len, int buf_size) throws
             java.io.FileNotFoundException,
             java.io.IOException {
