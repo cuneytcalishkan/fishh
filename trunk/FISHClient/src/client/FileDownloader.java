@@ -80,31 +80,16 @@ public class FileDownloader implements Runnable {
             isr = socket.getInputStream();
             System.out.println("\nDownloading file to " + fileName);
 
-            int bufSize = 1024;
-            long remaining = length;
-            if (remaining < bufSize && remaining > 0) {
-                bufSize = (int) remaining;
-            }
-            int result;
-            byte[] buf = new byte[bufSize];
-            while (remaining > 0) {
-                result = isr.read(buf);
-                if (result == -1) {
-                    break;
-                }
-                osw.write(buf);
-                remaining -= result;
-                if (remaining < bufSize) {
-                    bufSize = (int) remaining;
-                    buf = new byte[bufSize];
-                }
+            int ch;
+            while ((ch = isr.read()) != -1) {
+                osw.write(ch);
+                length--;
             }
             osw.flush();
-            String done = reader.readLine();
-            writer.println(Helper.DONE);
-            System.out.println("\nFinished downloading " + fileName);
+            System.out.println("\nFinished downloading " + fileName
+                    + "," + (length == 0 ? "successfully." : "incomplete."));
             if (savePath.equals(c.getBasePath())) {
-                c.updateSharedFiles();
+                c.share();
             }
         } catch (Exception ex) {
             System.out.println(ex);
@@ -121,9 +106,6 @@ public class FileDownloader implements Runnable {
             if (osw != null) {
                 osw.flush();
                 osw.close();
-            }
-            if (isr != null) {
-                isr.close();
             }
             if (socket != null) {
                 socket.close();

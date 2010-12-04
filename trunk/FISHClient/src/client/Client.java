@@ -143,13 +143,6 @@ public class Client {
         socket.close();
     }
 
-    /**
-     * Discovers the files in the shared files path and tells the server
-     * to unshare the previous entries but to share the new ones
-     */
-    public void updateSharedFiles() {
-        share();
-    }
 
     /**
      * Sends a request to the server to unshare the entries of this client
