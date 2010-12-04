@@ -62,10 +62,10 @@ public class FileUploader implements Runnable {
             int ch;
             while ((ch = isr.read()) != -1) {
                 osw.write(ch);
+                osw.flush();
                 length--;
             }
             System.out.println(length);
-            osw.flush();
             System.out.println("\nFinished uploading file " + fileName);
         } catch (Exception ex) {
             System.out.println(ex);
