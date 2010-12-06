@@ -30,7 +30,8 @@ public class Pinger extends TimerTask {
         for (Peer peer : peers) {
             try {
                 System.out.println("ping: " + peer.getAddress() + " on " + peer.getPingPort());
-                new Socket(peer.getAddress(), peer.getPingPort());
+                Socket s = new Socket(peer.getAddress(), peer.getPingPort());
+                s.close();
             } catch (Exception ex) {
                 try {
                     t = session.beginTransaction();
