@@ -6,6 +6,7 @@ package client;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,7 +30,8 @@ public class Ponger implements Runnable {
         try {
             ServerSocket ponger = new ServerSocket(port);
             while (true) {
-                ponger.accept();
+                Socket s = ponger.accept();
+                s.close();
             }
         } catch (IOException ex) {
             Logger.getLogger(Ponger.class.getName()).log(Level.SEVERE, null, ex);
